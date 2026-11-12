@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Недельный прогноз BTC и ETH</title>
+<meta name="description" content="Вероятности шорт, флэт и лонг на 7 дней и риски просадки лонга и стопа шорта">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#fcfcfb" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1a1a19" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Прогноз">
+<link rel="preload" href="fonts/geologica-cyrillic-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="style.css">
+<script src="app.js" defer></script>
+</head>
+<body>
+<main class="wrap">
+  <header class="top">
+    <div class="tabs" id="tabs" role="group" aria-label="Инструмент"></div>
+    <p class="fresh" id="fresh"></p>
+  </header>
+  <div id="notes"></div>
+  <div id="splash">Загружаю прогноз…</div>
+  <div class="cols" id="cols" hidden>
+    <div class="col">
+      <section id="hero" aria-labelledby="hero-h"></section>
+      <section id="risks" aria-labelledby="risks-h"></section>
+    </div>
+    <div class="col">
+      <section id="trust" aria-labelledby="trust-h"></section>
+      <section id="history" aria-labelledby="hist-h"></section>
+    </div>
+  </div>
+  <footer id="foot" hidden></footer>
+  <noscript><p class="err">Для работы нужен JavaScript.</p></noscript>
+</main>
+</body>
+</html>

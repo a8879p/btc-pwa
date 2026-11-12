@@ -1,0 +1,67 @@
+name: daily-forecast
+
+on:
+  schedule:
+    - cron: "20 0 * * *"      # 00:20 UTC: дневная свеча закрылась в 00:00
+  workflow_dispatch:           # ручной запуск кнопкой Run workflow
+
+permissions:
+  contents: write              # коммит data/*.json обратно в репозиторий
+  pages: write
+  id-token: write
+
+concurrency:
+  group: forecast
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: model/requirements.txt
+
+      - run: pip install -r model/requirements.txt
+
+      # Если один из инструментов не посчитался, остальные всё равно публикуются,
+      # а запуск в конце помечается красным (последний шаг) - придёт письмо от GitHub.
+      - name: Считаем прогноз
+        id: model
+        continue-on-error: true
+        run: python model/btc_weekly_model.py BTC/USDT ETH/USDT --out web/data
+
+      - name: Сохраняем данные в репозиторий
+        run: |
+          git config user.name "forecast-bot"
+          git config user.email "forecast-bot@users.noreply.github.com"
+          git add web/data
+          git diff --cached --quiet || git commit -m "data: $(date -u +%F)"
+          git push
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: web
+
+      - name: Пометить запуск красным, если расчёт упал
+        if: steps.model.outcome == 'failure'
+        run: |
+          echo "::error::Модель не отработала, смотрите шаг 'Считаем прогноз'"
+          exit 1
+
+  deploy:
+    needs: build
+    if: always() && needs.build.result != 'skipped' && needs.build.result != 'cancelled'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
