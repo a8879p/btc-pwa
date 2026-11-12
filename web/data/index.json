@@ -1,0 +1,15 @@
+{
+ "symbols": [
+  {
+   "symbol": "BTC/USDT",
+   "slug": "BTC-USDT",
+   "asof": "2026-11-11"
+  },
+  {
+   "symbol": "ETH/USDT",
+   "slug": "ETH-USDT",
+   "asof": "2026-11-11"
+  }
+ ],
+ "generated_at": "2026-11-12T19:37:36Z"
+}
