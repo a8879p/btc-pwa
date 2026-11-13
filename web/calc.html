@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Прогноз по уровням</title>
+<meta name="description" content="Прогноз на 1 час, 4 часа и 1 день по вашим уровням поддержки и сопротивления, зонам ликвидаций Coinglass и StochRSI">
+<meta name="theme-color" content="#fcfcfb" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1a1a19" media="(prefers-color-scheme: dark)">
+<style>
+:root{
+  color-scheme:light dark;
+  --bg:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#898781;
+  --grid:#e1e0d9; --field:#f3f2ee; --ring:rgba(11,11,11,.14);
+  --long:#0a6b35; --short:#e34948; --flat:#cbcac1;
+  --on-long:#fff; --on-short:#fff; --on-flat:#0b0b0b;
+  --good:#006300; --warn:#a86f00; --crit:#d03b3b;
+  --font:"Geologica",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#1a1a19; --ink:#f0efec; --ink2:#c3c2b7; --muted:#898781;
+    --grid:#2c2c2a; --field:#252523; --ring:rgba(255,255,255,.16);
+    --long:#3fc46a; --short:#e66767; --flat:#4c4c48;
+    --on-long:#0b0b0b; --on-short:#0b0b0b; --on-flat:#f0efec;
+    --good:#0ca30c; --warn:#fab219; --crit:#e66767;
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.5 var(--font);
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+.wrap{max-width:1040px;margin:0 auto;padding:16px 16px 48px}
+h1,h2,h3,p{margin:0}
+h1{font-size:19px;font-weight:600;letter-spacing:-.01em;line-height:1.3}
+h2{font-size:16px;font-weight:600;letter-spacing:-.01em}
+.sub{color:var(--ink2);font-size:13px}
+.head{display:flex;justify-content:space-between;align-items:baseline;gap:8px 16px;flex-wrap:wrap}
+.head a{color:var(--ink2);font-size:13px}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px;border-radius:4px}
+
+.grid{display:grid;gap:0 48px;margin-top:8px}
+@media (min-width:900px){.grid{grid-template-columns:minmax(0,380px) minmax(0,1fr)}}
+section{padding:18px 0;border-top:1px solid var(--grid)}
+.form section:first-child{border-top:0}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.row.one{grid-template-columns:1fr}
+label{display:block;font-size:13px;color:var(--ink2)}
+input,select{width:100%;margin-top:4px;padding:10px 12px;min-height:44px;font:inherit;color:var(--ink);background:var(--field);
+  border:1.5px solid transparent;border-radius:8px;box-shadow:inset 0 0 0 1px var(--ring)}
+input:focus,select:focus{outline:none;border-color:var(--ink)}
+input.bad{border-color:var(--crit)}
+.hint{font-size:12.5px;color:var(--ink2);margin-top:6px}
+.err{font-size:12.5px;color:var(--crit);margin-top:6px}
+.priceline{display:flex;gap:8px;align-items:flex-end}
+.priceline>div{flex:1}
+button{font:inherit;color:inherit;min-height:44px;padding:0 14px;border-radius:8px;cursor:pointer;background:none;border:1.5px solid var(--ink)}
+button.link{border:0;min-height:36px;padding:0;text-decoration:underline;text-underline-offset:3px;color:var(--ink2);font-size:13px}
+.st{display:grid;grid-template-columns:44px 1fr 1fr;gap:8px 10px;align-items:end;margin-top:10px}
+.st .tf{font-weight:600;padding-bottom:12px}
+.st label{margin:0}
+details{margin-top:14px}
+summary{cursor:pointer;font-size:13px;color:var(--ink2);padding:6px 0;min-height:32px}
+
+.cards{display:grid;gap:14px;margin-top:12px}
+.card{padding:16px;border-radius:12px;box-shadow:inset 0 0 0 1px var(--ring)}
+.card-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.verdict{font-size:14px;font-weight:600}
+.strip{display:flex;gap:2px;height:30px;margin:12px 0 8px}
+.strip i{display:flex;align-items:center;padding-left:8px;min-width:0;font-style:normal;font-size:13px;font-weight:600;border-radius:4px;white-space:nowrap;transition:flex .3s}
+.b-short{background:var(--short);color:var(--on-short)}
+.b-flat{background:var(--flat);color:var(--on-flat)}
+.b-long{background:var(--long);color:var(--on-long)}
+.legend{display:flex;gap:16px;font-size:13px;color:var(--ink2);flex-wrap:wrap}
+.legend b{color:var(--ink);font-weight:600}
+.parts{list-style:none;margin:12px 0 0;padding:0;font-size:13.5px}
+.parts li{display:grid;grid-template-columns:minmax(0,1fr) 52px;gap:10px;padding:7px 0;border-top:1px solid var(--grid)}
+.parts .v{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.parts .g{color:var(--ink2);font-size:12px;display:block}
+.pos{color:var(--long)} .neg{color:var(--short)} .zero{color:var(--muted)}
+.note{margin-top:10px;padding:9px 12px;border-radius:8px;font-size:13px;line-height:1.4;
+  background:color-mix(in srgb,var(--warn) 16%,var(--bg));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--warn) 40%,transparent)}
+.empty{padding:28px 0;color:var(--ink2)}
+.fn{font-size:12.5px;color:var(--ink2);line-height:1.5;margin-top:18px;max-width:70ch}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="head">
+    <h1>Прогноз по вашим уровням</h1>
+    <a href="./">← к прогнозу модели</a>
+  </div>
+  <p class="sub" style="margin-top:4px">Введите цену, уровни, зоны ликвидаций и StochRSI. Прогноз пересчитывается сразу, каждый вклад виден отдельной строкой.</p>
+
+  <div class="grid">
+    <div class="form">
+      <section>
+        <h2>Цена</h2>
+        <div class="row one">
+          <div class="priceline">
+            <div>
+              <label for="coin">Монета</label>
+              <select id="coin"><option value="BTC">BTC</option><option value="ETH">ETH</option></select>
+            </div>
+            <div>
+              <label for="price">Текущая цена, $</label>
+              <input id="price" inputmode="decimal" autocomplete="off" placeholder="например 71 400">
+            </div>
+            <button type="button" id="fetch" title="Взять цену с биржи">⟳</button>
+          </div>
+          <p class="hint" id="priceStatus"></p>
+        </div>
+      </section>
+
+      <section>
+        <h2>Уровни</h2>
+        <div class="row">
+          <div><label for="sup">Поддержка, $</label><input id="sup" inputmode="decimal" autocomplete="off"></div>
+          <div><label for="res">Сопротивление, $</label><input id="res" inputmode="decimal" autocomplete="off"></div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Ликвидации (Coinglass)</h2>
+        <div class="row">
+          <div><label for="liq1">Зона 1, $</label><input id="liq1" inputmode="decimal" autocomplete="off"></div>
+          <div><label for="liq2">Зона 2, $</label><input id="liq2" inputmode="decimal" autocomplete="off"></div>
+        </div>
+        <p class="hint">Что выше цены, считается притяжением вверх, что ниже, притяжением вниз. Порядок не важен.</p>
+      </section>
+
+      <section>
+        <h2>StochRSI</h2>
+        <p class="sub">Значения K и D с графика. Пустые поля пропускаются.</p>
+        <div class="st">
+          <span class="tf">1 ч</span>
+          <div><label for="k1h">K</label><input id="k1h" inputmode="decimal" autocomplete="off"></div>
+          <div><label for="d1h">D</label><input id="d1h" inputmode="decimal" autocomplete="off"></div>
+          <span class="tf">4 ч</span>
+          <div><input id="k4h" inputmode="decimal" autocomplete="off" aria-label="K, 4 часа"></div>
+          <div><input id="d4h" inputmode="decimal" autocomplete="off" aria-label="D, 4 часа"></div>
+          <span class="tf">1 д</span>
+          <div><input id="k1d" inputmode="decimal" autocomplete="off" aria-label="K, 1 день"></div>
+          <div><input id="d1d" inputmode="decimal" autocomplete="off" aria-label="D, 1 день"></div>
+        </div>
+        <details>
+          <summary>Настройки: типичный размах цены</summary>
+          <p class="hint" style="margin-top:0">Насколько цена обычно двигается за горизонт, в %. От этого зависит, как далеко «слышен» уровень: для часа это доли процента, для дня несколько.</p>
+          <div class="st" style="grid-template-columns:44px 1fr">
+            <span class="tf">1 ч</span><div><input id="sg1h" inputmode="decimal" aria-label="Размах за 1 час, %"></div>
+            <span class="tf">4 ч</span><div><input id="sg4h" inputmode="decimal" aria-label="Размах за 4 часа, %"></div>
+            <span class="tf">1 д</span><div><input id="sg1d" inputmode="decimal" aria-label="Размах за 1 день, %"></div>
+          </div>
+        </details>
+        <p style="margin-top:12px"><button type="button" class="link" id="reset">Очистить все поля</button></p>
+      </section>
+    </div>
+
+    <div>
+      <section id="out" style="border-top:0"></section>
+    </div>
+  </div>
+</main>
+
+<script id="core">
+// ───────── Ядро: чистая функция без DOM ─────────
+const HZ = [
+  { key: "1h", label: "1 час",   own: "1h", ctx: [["4h", 0.5]] },
+  { key: "4h", label: "4 часа",  own: "4h", ctx: [["1d", 0.5]] },
+  { key: "1d", label: "1 день",  own: "1d", ctx: [["4h", 0.4]] },
+];
+const SIGMA_DEFAULT = { BTC: { "1h": 0.5, "4h": 1.0, "1d": 2.2 }, ETH: { "1h": 0.7, "4h": 1.4, "1d": 3.0 } };
+const BASE = { short: 0.30, flat: 0.40, long: 0.30 };   // исходные доли, когда сигналов нет
+const CAP = { stoch: 18, levels: 16, liq: 12, total: 40 };
+const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+
+// число из строки: "71 500", "71,500", "45,3", "45.3"
+function parseNum(s) {
+  if (s == null) return null;
+  s = String(s).trim().replace(/[\s  ]/g, "");
+  if (s === "") return null;
+  if (/^\d{1,3}(,\d{3})+(\.\d+)?$/.test(s)) s = s.replace(/,/g, "");
+  else s = s.replace(",", ".");
+  const v = Number(s);
+  return Number.isFinite(v) ? v : NaN;
+}
+
+const nf = (x, d = 0) => x.toLocaleString("ru-RU", { minimumFractionDigits: d, maximumFractionDigits: d });
+const pct = (x, d = 1) => (x >= 0 ? "+" : "−") + nf(Math.abs(x * 100), d) + "%";
+const usd = (x) => nf(x, x < 1000 ? 2 : 0) + " $";
+
+// 1) StochRSI на одном таймфрейме. Перепроданность и перекупленность - зоны разворота,
+// пересечение K и D подтверждает или отменяет разворот; в середине диапазона смотрим только на K против D.
+function stochPart(k, d) {
+  if (k == null) return null;
+  const hasD = d != null;
+  let v, t;
+  if (k <= 20) {
+    v = 8; t = "перепродан";
+    if (hasD) { if (k > d) { v += 6; t += ", K выше D (разворот вверх)"; } else t += ", K ещё не поднялась выше D"; }
+  } else if (k >= 80) {
+    v = -8; t = "перекуплен";
+    if (hasD) { if (k < d) { v -= 6; t += ", K ниже D (разворот вниз)"; } else t += ", K ещё не опустилась ниже D"; }
+  } else {
+    v = hasD ? clamp((k - d) * 0.5, -4, 4) : 0;
+    t = "середина диапазона" + (hasD ? (k > d ? ", K выше D" : k < d ? ", K ниже D" : "") : "");
+  }
+  return { v, t: `K ${nf(k, 1)}${hasD ? `, D ${nf(d, 1)}` : ""}: ${t}` };
+}
+
+// 2) Поддержка и сопротивление: чем ближе уровень (в долях типичного размаха), тем сильнее отскок;
+// если цена уже за уровнем - это пробой, и влияние продолжает движение.
+function levelParts(price, S, R, sig) {
+  const parts = [];
+  if (S != null) {
+    const d = (price - S) / price;
+    if (d >= 0) {
+      const pull = Math.max(0, 1 - d / (2 * sig));
+      parts.push({ v: 10 * pull, t: pull > 0 ? `до поддержки ${usd(S)} ${pct(-d)}: отскок вероятен` : `до поддержки ${usd(S)} ${pct(-d)}: далеко для этого горизонта` });
+    } else {
+      const k = Math.max(0, 1 - (-d) / (3 * sig));
+      parts.push({ v: -6 * k, t: `цена ниже поддержки ${usd(S)} на ${nf(-d * 100, 1)}%: пробой вниз` });
+    }
+  }
+  if (R != null) {
+    const d = (R - price) / price;
+    if (d >= 0) {
+      const pull = Math.max(0, 1 - d / (2 * sig));
+      parts.push({ v: -10 * pull, t: pull > 0 ? `до сопротивления ${usd(R)} ${pct(d)}: возможен отбой вниз` : `до сопротивления ${usd(R)} ${pct(d)}: далеко для этого горизонта` });
+    } else {
+      const k = Math.max(0, 1 - (-d) / (3 * sig));
+      parts.push({ v: 6 * k, t: `цена выше сопротивления ${usd(R)} на ${nf(-d * 100, 1)}%: пробой вверх` });
+    }
+  }
+  return parts;
+}
+
+// 3) Зоны ликвидаций работают как магнит: цену тянет к скоплению стопов. Чем ближе, тем сильнее.
+function liqParts(price, zones, sig) {
+  const w = (d) => Math.exp(-d / (2 * sig));
+  const up = zones.filter((z) => z > price).sort((a, b) => a - b);
+  const down = zones.filter((z) => z < price).sort((a, b) => b - a);
+  const parts = [];
+  const wu = Math.min(1, up.reduce((s, z) => s + w((z - price) / price), 0));
+  const wd = Math.min(1, down.reduce((s, z) => s + w((price - z) / price), 0));
+  const near = (z) => Math.abs(z - price) / price < 0.3 * sig;
+  up.forEach((z, i) => parts.push({ v: i === 0 ? 12 * wu : 0, t: `зона ликвидаций ${usd(z)} выше (${pct((z - price) / price)})${i === 0 ? ": тянет цену вверх" : ""}${near(z) ? ". Цена почти у зоны: возможен выброс за неё и разворот" : ""}` }));
+  down.forEach((z, i) => parts.push({ v: i === 0 ? -12 * wd : 0, t: `зона ликвидаций ${usd(z)} ниже (${pct((z - price) / price)})${i === 0 ? ": тянет цену вниз" : ""}${near(z) ? ". Цена почти у зоны: возможен выброс за неё и разворот" : ""}` }));
+  return parts;
+}
+
+function forecast(inp) {
+  const price = inp.price;
+  const res = [];
+  for (const hz of HZ) {
+    const sig = (inp.sigma[hz.key] || SIGMA_DEFAULT.BTC[hz.key]) / 100;
+    const groups = [];
+
+    // StochRSI: свой таймфрейм с весом 1 и старший/младший как контекст
+    const st = [];
+    const own = stochPart(inp.stoch[hz.own].k, inp.stoch[hz.own].d);
+    if (own) st.push({ v: own.v, t: `${hz.own === "1d" ? "1 день" : hz.own === "4h" ? "4 часа" : "1 час"}, ${own.t}`, w: 1 });
+    for (const [tf, w] of hz.ctx) {
+      const p = stochPart(inp.stoch[tf].k, inp.stoch[tf].d);
+      if (p) st.push({ v: p.v * w, t: `${tf === "1d" ? "1 день" : tf === "4h" ? "4 часа" : "1 час"} (вес ${nf(w, 1)}), ${p.t}`, w });
+    }
+    groups.push({ name: "StochRSI", items: st, cap: CAP.stoch });
+
+    if (price != null) {
+      groups.push({ name: "Уровни", items: levelParts(price, inp.sup, inp.res, sig), cap: CAP.levels });
+      groups.push({ name: "Ликвидации", items: liqParts(price, inp.liq, sig), cap: CAP.liq });
+    }
+    let total = 0, pos = 0, neg = 0;
+    for (const g of groups) {
+      g.sum = clamp(g.items.reduce((s, x) => s + x.v, 0), -g.cap, g.cap);
+      total += g.sum;
+      if (g.sum > 0) pos += g.sum; else neg += g.sum;
+    }
+    total = clamp(total, -CAP.total, CAP.total);
+    const shift = (total / 50) * 0.9;
+    let wl = BASE.long * Math.exp(shift), ws = BASE.short * Math.exp(-shift), wf = BASE.flat;
+    const sum = wl + ws + wf;
+    let long = Math.round(wl / sum * 100), short = Math.round(ws / sum * 100);
+    const probs = { long, short, flat: 100 - long - short };
+    const diff = probs.long - probs.short;
+    const verdict = diff >= 12 ? "Перевес лонга" : diff <= -12 ? "Перевес шорта" : "Явного перевеса нет";
+    const any = groups.some((g) => g.items.length);
+    res.push({ hz, groups, total, probs, verdict, conflict: pos >= 6 && neg <= -6, any });
+  }
+  return res;
+}
+</script>
+
+<script id="ui">
+(() => {
+  const $ = (s) => document.querySelector(s);
+  const IDS = ["price", "sup", "res", "liq1", "liq2", "k1h", "d1h", "k4h", "d4h", "k1d", "d1d", "sg1h", "sg4h", "sg1d"];
+  const store = {
+    get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* приватный режим */ } },
+  };
+  let state = store.get("calc-v1") || { coin: "BTC", vals: {} };
+  if (!state.vals) state.vals = {};
+
+  function fieldsFor(coin) {
+    const o = state.vals[coin] || {};
+    const sg = SIGMA_DEFAULT[coin];
+    return Object.assign({ sg1h: sg["1h"], sg4h: sg["4h"], sg1d: sg["1d"] }, o);
+  }
+  function load() {
+    $("#coin").value = state.coin;
+    const v = fieldsFor(state.coin);
+    IDS.forEach((id) => { $("#" + id).value = v[id] == null ? "" : String(v[id]).replace(".", ","); });
+  }
+  function save() {
+    const v = {};
+    IDS.forEach((id) => { v[id] = $("#" + id).value; });
+    state.vals[state.coin] = v;        // ключ - монета, для которой сейчас заполнена форма
+    store.set("calc-v1", state);
+  }
+
+  function read() {
+    const errs = [];
+    const num = (id, label, lo, hi) => {
+      const el = $("#" + id), v = parseNum(el.value);
+      const bad = Number.isNaN(v) || (v != null && ((lo != null && v < lo) || (hi != null && v > hi)));
+      el.classList.toggle("bad", bad);
+      if (bad) errs.push(`${label}: проверьте число${lo != null && hi != null ? ` (от ${lo} до ${hi})` : ""}`);
+      return bad ? null : v;
+    };
+    const inp = {
+      price: num("price", "Цена", 0.0001), sup: num("sup", "Поддержка", 0.0001), res: num("res", "Сопротивление", 0.0001),
+      liq: [num("liq1", "Зона ликвидаций 1", 0.0001), num("liq2", "Зона ликвидаций 2", 0.0001)].filter((x) => x != null),
+      stoch: {
+        "1h": { k: num("k1h", "K 1ч", 0, 100), d: num("d1h", "D 1ч", 0, 100) },
+        "4h": { k: num("k4h", "K 4ч", 0, 100), d: num("d4h", "D 4ч", 0, 100) },
+        "1d": { k: num("k1d", "K 1д", 0, 100), d: num("d1d", "D 1д", 0, 100) },
+      },
+      sigma: {
+        "1h": num("sg1h", "Размах 1ч", 0.01, 50) ?? SIGMA_DEFAULT[$("#coin").value]["1h"],
+        "4h": num("sg4h", "Размах 4ч", 0.01, 50) ?? SIGMA_DEFAULT[$("#coin").value]["4h"],
+        "1d": num("sg1d", "Размах 1д", 0.01, 50) ?? SIGMA_DEFAULT[$("#coin").value]["1d"],
+      },
+    };
+    if (inp.sup != null && inp.res != null && inp.sup >= inp.res) errs.push("Поддержка должна быть ниже сопротивления");
+    for (const [tf, name] of [["1h", "1ч"], ["4h", "4ч"], ["1d", "1д"]]) {
+      if (inp.stoch[tf].d != null && parseNum($("#k" + tf).value) === null) errs.push(`StochRSI ${name}: введите K`);
+    }
+    return { inp, errs };
+  }
+
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const sgn = (v) => (Math.abs(v) < 0.05 ? "0" : (v > 0 ? "+" : "−") + nf(Math.abs(v), 1));
+  const cls = (v) => (Math.abs(v) < 0.05 ? "zero" : v > 0 ? "pos" : "neg");
+
+  function card(r) {
+    const p = r.probs;
+    const lab = (x, n) => (x >= 13 ? `${x}%` : "");
+    const rows = r.groups.flatMap((g) => g.items.length ? [`<li><span><b>${g.name}</b><span class="g">итого с ограничением ±${g.cap}</span></span><span class="v ${cls(g.sum)}">${sgn(g.sum)}</span></li>`,
+      ...g.items.map((x) => `<li><span class="g" style="font-size:13.5px;color:var(--ink)">${esc(x.t)}</span><span class="v ${cls(x.v)}">${sgn(x.v)}</span></li>`)] : []);
+    return `<article class="card" aria-label="Прогноз на ${esc(r.hz.label)}">
+      <div class="card-h"><h2>На ${esc(r.hz.label)}</h2><span class="verdict">${r.any ? r.verdict : "нет данных"}</span></div>
+      <div class="strip" role="img" aria-label="шорт ${p.short}%, флэт ${p.flat}%, лонг ${p.long}%">
+        <i class="b-short" style="flex:${p.short} 1 0">${lab(p.short)}</i><i class="b-flat" style="flex:${p.flat} 1 0">${lab(p.flat)}</i><i class="b-long" style="flex:${p.long} 1 0">${lab(p.long)}</i>
+      </div>
+      <div class="legend"><span>Шорт <b>${p.short}%</b></span><span>Флэт <b>${p.flat}%</b></span><span>Лонг <b>${p.long}%</b></span><span style="margin-left:auto">счёт <b>${sgn(r.total)}</b></span></div>
+      ${r.conflict ? `<div class="note">Сигналы расходятся: часть данных говорит за рост, часть за падение. Итог получается слабым.</div>` : ""}
+      ${rows.length ? `<ul class="parts">${rows.join("")}</ul>` : ""}
+    </article>`;
+  }
+
+  function render() {
+    save();
+    const { inp, errs } = read();
+    const out = $("#out");
+    const errHtml = errs.length ? `<div class="note" role="alert">${errs.map(esc).join("<br>")}</div>` : "";
+    if (inp.price == null) {
+      out.innerHTML = errHtml + `<p class="empty">Введите текущую цену (или нажмите ⟳), чтобы рассчитать уровни и ликвидации. StochRSI учитывается и без цены.</p>` +
+        `<div class="cards">${forecast(inp).map(card).join("")}</div>`;
+    } else {
+      out.innerHTML = errHtml + `<div class="cards">${forecast(inp).map(card).join("")}</div>`;
+    }
+    out.innerHTML += `<p class="fn">Это оценка по простым правилам, а не статистическая модель: пороги выбраны здравым смыслом и на истории не проверялись.
+      Исходные доли без сигналов: шорт 30%, флэт 40%, лонг 30%; каждый сигнал сдвигает их в пределах ±40 очков. «Флэт» здесь означает, что цена к концу горизонта ушла меньше чем на полстандартного отклонения. Это не рекомендация к сделкам.</p>`;
+  }
+
+  async function fetchPrice() {
+    const coin = $("#coin").value, st = $("#priceStatus");
+    st.textContent = "Запрашиваю цену…";
+    const sym = coin + "USDT";
+    const urls = [`https://api.binance.com/api/v3/ticker/price?symbol=${sym}`, `https://data-api.binance.vision/api/v3/ticker/price?symbol=${sym}`];
+    for (const u of urls) {
+      try {
+        const r = await fetch(u); if (!r.ok) continue;
+        const j = await r.json(), p = parseFloat(j.price);
+        if (p > 0) { $("#price").value = String(p).replace(".", ","); st.textContent = `Цена с Binance на ${new Date().toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" })}`; render(); return; }
+      } catch { /* пробуем следующий адрес */ }
+    }
+    st.textContent = "Не удалось получить цену с биржи. Введите её вручную.";
+  }
+
+  IDS.forEach((id) => $("#" + id).addEventListener("input", render));
+  $("#coin").addEventListener("change", () => {
+    save(); state.coin = $("#coin").value; load(); $("#priceStatus").textContent = ""; render();   // save() - ещё для прежней монеты
+    if (!$("#price").value) fetchPrice();
+  });
+  $("#fetch").addEventListener("click", fetchPrice);
+  $("#reset").addEventListener("click", () => {
+    state.vals[state.coin] = {}; load(); $("#priceStatus").textContent = ""; render();
+  });
+
+  load(); render();
+  if (!$("#price").value) fetchPrice();
+})();
+</script>
+</body>
+</html>
