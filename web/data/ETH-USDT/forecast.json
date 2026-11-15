@@ -3,70 +3,70 @@
  "symbol": "ETH/USDT",
  "demo": false,
  "source": "bitstamp",
- "generated_at": "2026-11-14T06:43:32Z",
- "asof": "2026-11-13",
- "target_date": "2026-11-20",
+ "generated_at": "2026-11-15T06:48:35Z",
+ "asof": "2026-11-14",
+ "target_date": "2026-11-21",
  "horizon_days": 7,
- "price": 1928.02,
+ "price": 1768.75,
  "params": {
   "theta_k": 0.5,
   "long_dd": 0.15,
   "short_stop": 0.1
  },
- "theta": 0.035,
+ "theta": 0.0396,
  "probs": {
-  "short": 0.3443,
-  "flat": 0.2243,
-  "long": 0.4315
+  "short": 0.4045,
+  "flat": 0.1839,
+  "long": 0.4116
  },
  "risk": {
-  "long_drawdown": 0.1998,
-  "short_stop": 0.3128
+  "long_drawdown": 0.4711,
+  "short_stop": 0.4212
  },
  "base": {
-  "short": 0.2441,
-  "flat": 0.4535,
-  "long": 0.3023,
-  "long_drawdown": 0.1248,
-  "short_stop": 0.2931
+  "short": 0.244,
+  "flat": 0.4537,
+  "long": 0.3022,
+  "long_drawdown": 0.1247,
+  "short_stop": 0.293
  },
  "metrics": {
   "direction": {
    "all": {
-    "n": 1665,
-    "model": 1.1545,
-    "base": 1.0742
+    "n": 1666,
+    "model": 1.1542,
+    "base": 1.0744
    },
    "recent": {
     "n": 365,
-    "model": 1.2033,
-    "base": 1.064
+    "model": 1.2031,
+    "base": 1.0639
    },
    "live": null
   },
   "long_drawdown": {
    "all": {
-    "n": 1665,
-    "model": 0.0983,
-    "base": 0.096
+    "n": 1666,
+    "model": 0.0986,
+    "base": 0.0964
    },
    "recent": {
     "n": 365,
-    "model": 0.074,
-    "base": 0.076
+    "model": 0.0751,
+    "base": 0.078
    },
    "live": null
   },
   "short_stop": {
    "all": {
-    "n": 1665,
-    "model": 0.1999,
-    "base": 0.191
+    "n": 1666,
+    "model": 0.1998,
+    "base": 0.1909
    },
    "recent": {
     "n": 365,
-    "model": 0.1758,
-    "base": 0.1654
+    "model": 0.1757,
+    "base": 0.1653
    },
    "live": null
   }
@@ -83,9 +83,9 @@
    {
     "lo": 0.1,
     "hi": 0.2,
-    "n": 307,
+    "n": 308,
     "pred": 0.154,
-    "real": 0.228
+    "real": 0.227
    },
    {
     "lo": 0.2,
@@ -162,9 +162,9 @@
    {
     "lo": 0.4,
     "hi": 0.5,
-    "n": 156,
-    "pred": 0.445,
-    "real": 0.282
+    "n": 157,
+    "pred": 0.446,
+    "real": 0.287
    },
    {
     "lo": 0.5,
@@ -213,9 +213,9 @@
    {
     "lo": 0.3,
     "hi": 0.4,
-    "n": 57,
+    "n": 58,
     "pred": 0.336,
-    "real": 0.088
+    "real": 0.103
    }
   ],
   "short_stop": [
@@ -229,7 +229,7 @@
    {
     "lo": 0.1,
     "hi": 0.2,
-    "n": 416,
+    "n": 417,
     "pred": 0.152,
     "real": 0.144
    },
@@ -278,7 +278,6 @@
   ]
  },
  "spark": [
-  2396.3,
   2416.12,
   2445.26,
   2611.38,
@@ -337,6 +336,7 @@
   2050.82,
   2054.2,
   2017.18,
-  1928.02
+  1928.02,
+  1768.75
  ]
 }
